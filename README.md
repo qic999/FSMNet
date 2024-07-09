@@ -5,7 +5,7 @@
 ## Paper
 
 <b>Accelerated Multi-Contrast MRI Reconstruction via Frequency and Spatial Mutual Learning</b> <br/>
-[Qi Chen](https://scholar.google.com/citations?user=4Q5gs2MAAAAJ&hl=en)<sup>1</sup>, [Xiaohan Xing](https://www.linkedin.com/in/xiaoxichensjtu/?originalSubdomain=cn)<sup>2, *</sup>, [Zhen Chen](https://www.linkedin.com/in/haorui-song)<sup>3</sup>, [Zhiwei Xiong](http://staff.ustc.edu.cn/~zwxiong/)<sup>1</sup> <br/>
+[Qi Chen](https://scholar.google.com/citations?user=4Q5gs2MAAAAJ&hl=en)<sup>1</sup>, [Xiaohan Xing](https://hathawayxxh.github.io/)<sup>2, *</sup>, [Zhen Chen](https://franciszchen.github.io/)<sup>3</sup>, [Zhiwei Xiong](http://staff.ustc.edu.cn/~zwxiong/)<sup>1</sup> <br/>
 <sup>1 </sup>University of Science and Technology of China,  <br/>
 <sup>2 </sup>Stanford University,  <br/>
 <sup>3 </sup>Centre for Artificial Intelligence and Robotics (CAIR), HKISI-CAS  <br/>

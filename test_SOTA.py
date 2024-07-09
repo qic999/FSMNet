@@ -110,20 +110,12 @@ if __name__ == "__main__":
 
         for (sampled_batch, sample_stats) in tqdm(testloader, ncols=70):
             cnt += 1
-            if cnt > 300 and cnt < 310:
-                pass
-            elif cnt > 310:
-                break
-            else:
-                continue
 
             print('processing ' + str(cnt) + ' image')
             t1_in, t1, t2_in, t2 = sampled_batch['image_in'].cuda(), sampled_batch['image'].cuda(), \
                                    sampled_batch['target_in'].cuda(), sampled_batch['target'].cuda()
             t1_krecon, t2_krecon = sampled_batch['image_krecon'].cuda(), sampled_batch['target_krecon'].cuda()
 
-            # t1_mean = sample_stats['t1_mean'].data.cpu().numpy()[0]
-            # t1_std = sample_stats['t1_std'].data.cpu().numpy()[0]
             t2_mean = sample_stats['t2_mean'].data.cpu().numpy()[0]
             t2_std = sample_stats['t2_std'].data.cpu().numpy()[0]
 
@@ -131,10 +123,6 @@ if __name__ == "__main__":
             t1_out, t2_out = None, None
 
             if args.use_multi_modal == 'True':
-                if args.modality == "both":
-                    # t1_out, t2_out = network(t1_in, t2_in)
-                    t1_out, t2_out = network(t1_in, t2_in, t1_krecon, t2_krecon)
-
                 elif args.modality == "t1":
                     t1_out = network(t1_in, t2_in)
                 elif args.modality == "t2":
@@ -215,39 +203,3 @@ if __name__ == "__main__":
         print("[T2 MRI:] average MSE:", np.array(t2_MSE_all).mean(), "average PSNR:", np.array(t2_PSNR_all).mean(), "average SSIM:", np.array(t2_SSIM_all).mean())
         print("[T2 MRI:] average MSE:", np.array(t2_MSE_all).std(), "average PSNR:", np.array(t2_PSNR_all).std(), "average SSIM:", np.array(t2_SSIM_all).std())
 
-
-    elif args.phase == "diff":
-        save_mode_path = os.path.join(snapshot_path, 'iter_100000.pth')
-        print('load weights from ' + save_mode_path)
-        checkpoint = torch.load(save_mode_path)
-        network.load_state_dict(checkpoint['network'])
-        network.eval()
-        cnt = 0
-        save_path = snapshot_path + '/result_case_diff/'
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
-
-        for sampled_batch in tqdm(testloader, ncols=70):
-            print('processing ' + str(cnt) + ' image')
-            ct_in, ct, mri_in, mri = sampled_batch['ct_in'].cuda(), sampled_batch['ct'].cuda(), \
-                                     sampled_batch['mri_in'].cuda(), sampled_batch['mri'].cuda()
-
-            for idx, lam in enumerate([0, 0.3, 0.5, 0.7, 1]):
-                domainness = [torch.tensor(lam).cuda().float().reshape((1, 1))]
-                with torch.no_grad():
-                    fusion_out = network(ct_in, mri_in, domainness)[0][0]
-                fusion_out[fusion_out < 0.0] = 0.0
-                fusion_img = (fusion_out.data.cpu().numpy()[0, 0] * 255).astype(np.uint8)
-
-                diff_ct = fusion_out.data.cpu().numpy()[0, 0] - ct.data.cpu().numpy()[0, 0]
-                diff_ct = (trunc(diff_ct*255 +135)).astype(np.uint8)
-
-                diff_mri = fusion_out.data.cpu().numpy()[0, 0] - mri.data.cpu().numpy()[0, 0]
-                diff_mri = (trunc(diff_mri*255 +135)).astype(np.uint8)
-
-                io.imsave(save_path + 'diff_' + str(cnt) + '_'+ str(lam) + '_ct.png', diff_ct)
-                io.imsave(save_path + 'diff_' + str(cnt) + '_'+ str(lam) + '_mri.png', diff_mri)
-
-            cnt = cnt + 1
-            if cnt > 3:
-                break

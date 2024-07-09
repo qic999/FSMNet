@@ -1,11 +1,4 @@
-"""
-Compare with state-of-the-art methods.
-Load models from the folder networks/compare_models.
-"""
-
 import os
-# os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
-
 import sys
 from tqdm import tqdm
 from tensorboardX import SummaryWriter
@@ -25,13 +18,8 @@ from networks.compare_models import build_model_from_name
 from dataloaders.BRATS_dataloader_new import Hybrid as MyDataset
 from dataloaders.BRATS_dataloader_new import RandomPadCrop, ToTensor, AddNoise
 from networks.mynet import TwoBranch
-# from dataloaders.BRATS_dataloader import Hybrid as MyDataset
-# from dataloaders.BRATS_dataloader import RandomPadCrop, ToTensor
 from option import args
 from skimage.metrics import mean_squared_error, peak_signal_noise_ratio, structural_similarity
-
-
-# torch.backends.cudnn.benchmark = True
 
 
 train_data_path = args.root_path
@@ -144,11 +132,8 @@ if __name__ == "__main__":
         network.train()
 
         params = list(network.parameters())
-        # optimizer1 = optim.SGD(params, lr=base_lr, momentum=0.9, weight_decay=1e-4)
-        # optimizer1 = optim.Adam(params, lr=base_lr, betas=(0.5, 0.999), weight_decay=1e-4)
         optimizer1 = optim.AdamW(params, lr=base_lr, betas=(0.9, 0.999), weight_decay=1e-4)
         scheduler1 = optim.lr_scheduler.StepLR(optimizer1, step_size=20000, gamma=0.5)
-        # scheduler1 = optim.lr_scheduler.StepLR(optimizer1, step_size=200000, gamma=0.5)
 
         writer = SummaryWriter(snapshot_path + '/log')
 
@@ -206,13 +191,13 @@ if __name__ == "__main__":
                             outputs = network(t1_in)
                         elif args.input_modality == "t2":
                             outputs = network(t2_in, t1_in)
-                        # breakpoint()
+
                         loss = criterion(outputs['img_out'], t2) + \
                                 fft_weight * amploss(outputs['img_fre'], t2) + fft_weight * phaloss(
                                 outputs['img_fre'],
                                 t2) + \
                                 criterion(outputs['img_fre'], t2)
-                        # breakpoint()
+
                     # print("reconstructed image:", outputs.max(), outputs.min())
 
                 time4 = time.time()
@@ -281,12 +266,8 @@ if __name__ == "__main__":
 
                 elif args.use_multi_modal == 'False':
                     if args.modality == "t2":
-                        t2_out = network(t2_in, t1_in)['img_fre']
+                        t2_out = network(t2_in, t1_in)['img_out']
                         t1_out = None
-                # print("t1_in:", t1_in.max(), t1_in.min())
-                # print("t2_gt:", t2.max(), t2.min())
-                # print("t2_output:", t2_out.max(), t2_out.min())
-
 
                 if args.input_normalize == "mean_std":
                     ### 按照 x*std + mean把图像变回原来的特征范围
@@ -304,9 +285,6 @@ if __name__ == "__main__":
                     t2_img = (np.clip(t2.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
                     t2_out_img = (np.clip(t2_out.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
                     t2_krecon_img = (np.clip(t2_krecon.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
-
-                    # print("t2 range:", t2_img.max(), t2_img.min())
-                    # print("t2recon range:", t2_out_img.max(), t2_out_img.min())
 
                 else:
                     if t1_out is not None:
