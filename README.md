@@ -25,9 +25,9 @@ See [installation instructions](documents/INSTALL.md) to create an environment a
 ##### BraTS dataset, AF=4
 ```
 python train_SOTA.py --root_path /data/qic99/MRI_recon image_100patients_4X/ \
---gpu 0 --model_name unet_single --batch_size 4 --base_lr 0.0001 --MRIDOWN 4X --low_field_SNR 0 \
---kspace_refine False --use_multi_modal False --modality t2 --input_normalize mean_std \
---exp FSMNet_BraTS_4x
+    --gpu 0 --model_name unet_single --batch_size 4 --base_lr 0.0001 --MRIDOWN 4X --low_field_SNR 0 \
+    --kspace_refine False --use_multi_modal False --modality t2 --input_normalize mean_std \
+    --exp FSMNet_BraTS_4x
 ```
 
 ##### BraTS dataset, AF=8
