@@ -22,7 +22,19 @@ cd FSMNet
 
 See [installation instructions](documents/INSTALL.md) to create an environment and obtain requirements.
 
-## 1. Training
+## 1. Prepare datasets
+Download BraTS dataset and fastMRI dataset and save them to the `datapath` directory.
+```
+cd $datapath
+# download brats dataset
+wget https://huggingface.co/datasets/qicq1c/MRI_Reconstruction/resolve/main/BRATS_100patients.zip
+unzip BRATS_100patients.zip
+# download fastmri dataset
+wget https://huggingface.co/datasets/qicq1c/MRI_Reconstruction/resolve/main/singlecoil_train_selected.zip
+unzip singlecoil_train_selected.zip
+```
+
+## 2. Training
 ##### BraTS dataset, AF=4
 ```
 python train_brats.py --root_path /data/qic99/MRI_recon image_100patients_4X/ \
@@ -53,7 +65,7 @@ python train_fastmri.py --root_path /data/qic99/MRI_recon/fastMRI/ \
     --exp FSMNet_fastmri_8x
 ```
 
-## 2. Testing
+## 3. Testing
 ##### BraTS dataset, AF=4
 ```
 python test_brats.py --root_path /data/qic99/MRI_recon/image_100patients_4X/ \

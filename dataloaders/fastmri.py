@@ -107,10 +107,8 @@ class SliceDataset(Dataset):
         self.examples = []
 
         self.cur_path = root
-        # self.csv_file = os.path.join(self.cur_path, "singlecoil_" + self.mode + "_split_less.csv")
-        self.csv_file = "singlecoil_" + self.mode + "_split_less.csv"
+        self.csv_file = "data_split/singlecoil_" + self.mode + "_split_less.csv"
 
-        # 读取CSV
         with open(self.csv_file, 'r') as f:
             reader = csv.reader(f)
 
@@ -138,7 +136,7 @@ class SliceDataset(Dataset):
 
     def __getitem__(self, i):
 
-        # 读取pd
+        # read pd
         pd_fname, pdfs_fname, slice, pd_metadata, pdfs_metadata, id = self.examples[i]
 
         with h5py.File(pd_fname, "r") as hf:
@@ -171,8 +169,6 @@ class SliceDataset(Dataset):
             pdfs_sample = (pdfs_kspace, pdfs_mask, pdfs_target, attrs, pdfs_fname, slice)
         else:
             pdfs_sample = self.transform(pdfs_kspace, pdfs_mask, pdfs_target, attrs, pdfs_fname, slice)
-
-        # vis_data(pdfs_sample[0], pdfs_target[0], pd_fname, pdfs_fname, slice, 'vis_noise')
 
         return (pd_sample, pdfs_sample, id)
 

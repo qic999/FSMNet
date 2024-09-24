@@ -175,8 +175,6 @@ if __name__ == "__main__":
         network = nn.DataParallel(network)
         # network = nn.SyncBatchNorm.convert_sync_batchnorm(network)
     
-    # print("network architecture:", network)
-    
     n_parameters = sum(p.numel() for p in network.parameters() if p.requires_grad)
     print('number of params: %.2f M' % (n_parameters / 1024 / 1024))
 
