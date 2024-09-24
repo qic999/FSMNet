@@ -158,51 +158,19 @@ if __name__ == "__main__":
                 
                 t1_krecon, t2_krecon = sampled_batch['image_krecon'].cuda(), sampled_batch['target_krecon'].cuda()
                 
-                # print("t1_in:", t1_in.max(), t1_in.min(), 't1:', t1.max(), t1.min())
-                # print("t2_in:", t2_in.max(), t2_in.min(), 't2:', t2.max(), t2.min())
-                
 
                 time3 = time.time()
-                if args.use_multi_modal == 'True':
-                    
-                    if args.modality == "both":
-                        t1_out, t2_out = network(t1_in, t2_in, t1_krecon, t2_krecon)
-                        loss = F.l1_loss(t1_out, t1) + F.l1_loss(t2_out, t2)
-
-                    
-                    elif args.modality == "t1":
-                        outputs = network(t1_in, t2_in)
-                        loss = F.l1_loss(outputs, t1)
-                        
-                    elif args.modality == "t2":
-                        
-                        outputs = network(t2_in, t1_in)
-                        # print("recon image:", outputs.shape)
-                        loss = F.l1_loss(outputs, t2)
 
 
-                elif args.use_multi_modal == 'False':
-                    if args.modality == "t1":
-                        outputs = network(t1_in)
-                        # print("t1_recon:", outputs.max(), outputs.min())
-                        loss = F.l1_loss(outputs, t1)
-                    elif args.modality == "t2":
-                        if args.input_modality == "t1":
-                            outputs = network(t1_in)
-                        elif args.input_modality == "t2":
-                            outputs = network(t2_in, t1_in)
+                outputs = network(t2_in, t1_in)
 
-                        loss = criterion(outputs['img_out'], t2) + \
-                                fft_weight * amploss(outputs['img_fre'], t2) + fft_weight * phaloss(
-                                outputs['img_fre'],
-                                t2) + \
-                                criterion(outputs['img_fre'], t2)
-
-                    # print("reconstructed image:", outputs.max(), outputs.min())
+                loss = criterion(outputs['img_out'], t2) + \
+                        fft_weight * amploss(outputs['img_fre'], t2) + fft_weight * phaloss(
+                        outputs['img_fre'],
+                        t2) + \
+                        criterion(outputs['img_fre'], t2)
 
                 time4 = time.time()
-                # print("time for network forward:", time4 - time3)
-
                 optimizer1.zero_grad()
                 loss.backward()
 
@@ -214,13 +182,6 @@ if __name__ == "__main__":
                 scheduler1.step()
 
                 time5 = time.time()
-                # print("time for network optimization:", time5 - time4)
-
-
-                # gradient_calllback(network)
-
-
-                # print("current learning rate:", scheduler1.get_lr())
 
                 # summary
                 iter_num = iter_num + 1
@@ -256,21 +217,11 @@ if __name__ == "__main__":
                 
                 t1_krecon, t2_krecon = sampled_batch['image_krecon'].cuda(), sampled_batch['target_krecon'].cuda()
                 t_merge = torch.cat([t1_in, t2_in], dim=1)
-                if args.use_multi_modal == 'True':
-                    ### feed input images to the network.
-                    if args.modality == "both":
-                        t1_out, t2_out = network(t1_in, t2_in, t1_krecon, t2_krecon)
-                    elif args.modality == "t2":
-                        t2_out = network(t1_in, t2_in)
-                        t1_out = None
 
-                elif args.use_multi_modal == 'False':
-                    if args.modality == "t2":
-                        t2_out = network(t2_in, t1_in)['img_out']
-                        t1_out = None
+                t2_out = network(t2_in, t1_in)['img_out']
+                t1_out = None
 
                 if args.input_normalize == "mean_std":
-                    ### 按照 x*std + mean把图像变回原来的特征范围
                     t1_mean = sample_stats['t1_mean'].data.cpu().numpy()[0]
                     t1_std = sample_stats['t1_std'].data.cpu().numpy()[0]
                     t2_mean = sample_stats['t2_mean'].data.cpu().numpy()[0]
@@ -298,15 +249,13 @@ if __name__ == "__main__":
 
 
                 if t1_out is not None:
-                    # print("t1_out_img range:", t1_out_img.max(), t1_out_img.min())
-                    # print("t1_img range:", t1_img.max(), t1_img.min())
+
                     MSE = mean_squared_error(t1_img, t1_out_img)
                     PSNR = peak_signal_noise_ratio(t1_img, t1_out_img)
                     SSIM = structural_similarity(t1_img, t1_out_img)
                     t1_MSE_all.append(MSE)
                     t1_PSNR_all.append(PSNR)
                     t1_SSIM_all.append(SSIM)
-                    # print("[t1 MRI] MSE:", MSE, "PSNR:", PSNR, "SSIM:", SSIM)
 
                     MSE = mean_squared_error(t1_img, t1_krecon_img)
                     PSNR = peak_signal_noise_ratio(t1_img, t1_krecon_img)
@@ -317,8 +266,6 @@ if __name__ == "__main__":
 
 
                 if t2_out is not None:
-                    # print("t2_out_img range:", t2_out_img.max(), t2_out_img.min())
-                    # print("t2_img range:", t2_img.max(), t2_img.min())
                     MSE = mean_squared_error(t2_img, t2_out_img)
                     PSNR = peak_signal_noise_ratio(t2_img, t2_out_img)
                     SSIM = structural_similarity(t2_img, t2_out_img)
