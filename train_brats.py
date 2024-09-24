@@ -100,27 +100,22 @@ if __name__ == "__main__":
     logging.info(str(args))
 
     network = TwoBranch(args).cuda()
-    # network = build_model_from_name(args).cuda()
     device = torch.device('cuda')
     network.to(device)
 
     if len(args.gpu.split(',')) > 1:
         network = nn.DataParallel(network)
         # network = nn.SyncBatchNorm.convert_sync_batchnorm(network)
-    
-    # print("network architecture:", network)
-    
+
     n_parameters = sum(p.numel() for p in network.parameters() if p.requires_grad)
     print('number of params: %.2f M' % (n_parameters / 1024 / 1024))
 
-    db_train = MyDataset(kspace_refine=args.kspace_refine, kspace_round = args.kspace_round,
-                         split='train', MRIDOWN=args.MRIDOWN, SNR=args.low_field_SNR, 
+    db_train = MyDataset(split='train', MRIDOWN=args.MRIDOWN, SNR=args.low_field_SNR, 
                         #  transform=transforms.Compose([RandomPadCrop(), ToTensor(), AddNoise()]),
                          transform=transforms.Compose([RandomPadCrop(), ToTensor()]),
                          base_dir=train_data_path, input_normalize = args.input_normalize)
     
-    db_test = MyDataset(kspace_refine=args.kspace_refine, kspace_round = args.kspace_round,
-                        split='test', MRIDOWN=args.MRIDOWN, SNR=args.low_field_SNR, 
+    db_test = MyDataset(split='test', MRIDOWN=args.MRIDOWN, SNR=args.low_field_SNR, 
                         transform=transforms.Compose([ToTensor()]),
                         base_dir=test_data_path, input_normalize = args.input_normalize)
 
@@ -151,8 +146,7 @@ if __name__ == "__main__":
             time1 = time.time()
             for i_batch, (sampled_batch, sample_stats) in enumerate(trainloader):
                 time2 = time.time()
-                # print("time for data loading:", time2 - time1)
-
+   
                 t1_in, t1, t2_in, t2 = sampled_batch['image_in'].cuda(), sampled_batch['image'].cuda(), \
                                        sampled_batch['target_in'].cuda(), sampled_batch['target'].cuda()
                 
@@ -308,10 +302,6 @@ if __name__ == "__main__":
                 print('New Best Network:')
 
             logging.info(f"[T2 MRI:] average MSE: {t2_mse} average PSNR: {t2_psnr} average SSIM: {t2_ssim}")
-
-            if args.kspace_refine == "True":
-                logging.info(f"[T1 MRI (krecon_input):] average MSE: {t1_krecon_mse} average PSNR: {t1_krecon_psnr} average SSIM: {t1_krecon_ssim}")
-                logging.info(f"[T2 MRI (krecon_input):] average MSE: {t2_krecon_mse} average PSNR: {t2_krecon_psnr} average SSIM: {t2_krecon_ssim}")
 
             if iter_num > max_iterations:
                 break

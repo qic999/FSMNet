@@ -1,6 +1,7 @@
 # FSMNet
+FSMNet efficiently explores global dependencies across different modalities. Specifically, the features for each modality are extracted by the Frequency-Spatial Feature Extraction (FSFE) module, featuring a frequency branch and a spatial branch. Benefiting from the global property of the Fourier transform, the frequency branch can efficiently capture global dependency with an image-size receptive field, while the spatial branch can extract local features. To exploit complementary information from the auxiliary modality, we propose a Cross-Modal Selective fusion (CMS-fusion) module that selectively incorporate the frequency and spatial features from the auxiliary modality to enhance the corresponding branch of the target modality. To further integrate the enhanced global features from the frequency branch and the enhanced local features from the spatial branch, we develop a Frequency-Spatial fusion (FS-fusion) module, resulting in a comprehensive feature representation for the target modality. 
 
-
+<p align="center"><img width="100%" src="figures/FSMNet.png" /></p>
 
 ## Paper
 
@@ -10,7 +11,7 @@
 <sup>2 </sup>Stanford University,  <br/>
 <sup>3 </sup>Centre for Artificial Intelligence and Robotics (CAIR), HKISI-CAS  <br/>
 MICCAI, 2024 <br/>
-[paper]() | [code](https://github.com/qic999/FSMNet) | [huggingface]()
+[paper](http://arxiv.org/abs/2409.14113) | [code](https://github.com/qic999/FSMNet) | [huggingface](https://huggingface.co/datasets/qicq1c/MRI_Reconstruction)
 
 ## 0. Installation
 
