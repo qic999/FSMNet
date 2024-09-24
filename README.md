@@ -26,7 +26,7 @@ See [installation instructions](documents/INSTALL.md) to create an environment a
 ```
 python train_brats.py --root_path /data/qic99/MRI_recon image_100patients_4X/ \
     --gpu 0 --model_name unet_single --batch_size 4 --base_lr 0.0001 --MRIDOWN 4X --low_field_SNR 0 \
-    --kspace_refine False --use_multi_modal False --modality t2 --input_normalize mean_std \
+    --input_normalize mean_std \
     --exp FSMNet_BraTS_4x
 ```
 
@@ -34,7 +34,7 @@ python train_brats.py --root_path /data/qic99/MRI_recon image_100patients_4X/ \
 ```
 python train_brats.py --root_path /data/qic99/MRI_recon/image_100patients_8X/ \
     --gpu 1 --model_name unet_single --batch_size 4 --base_lr 0.0001 --MRIDOWN 8X --low_field_SNR 0 \
-    --kspace_refine False --use_multi_modal False --modality t2 --input_normalize mean_std \
+    --input_normalize mean_std \
     --exp FSMNet_BraTS_8x
 ```
 
@@ -57,7 +57,7 @@ python train_fastmri.py --root_path /data/qic99/MRI_recon/fastMRI/ \
 ```
 python test_brats.py --root_path /data/qic99/MRI_recon/image_100patients_4X/ \
     --gpu 3 --model_name unet_single --base_lr 0.0001 --MRIDOWN 4X --low_field_SNR 0 \
-    --kspace_refine False --use_multi_modal False --modality t2 --input_normalize mean_std \
+    --input_normalize mean_std \
     --exp FSMNet_BraTS_4x --phase test
 ```
 
@@ -65,7 +65,7 @@ python test_brats.py --root_path /data/qic99/MRI_recon/image_100patients_4X/ \
 ```
 python test_brats.py --root_path /data/qic99/MRI_recon/image_100patients_8X/ \
     --gpu 4 --model_name unet_single --base_lr 0.0001 --MRIDOWN 8X --low_field_SNR 0 \
-    --kspace_refine False --use_multi_modal False --modality t2 --input_normalize mean_std \
+    --input_normalize mean_std \
     --exp FSMNet_BraTS_8x --phase test
 ```
 

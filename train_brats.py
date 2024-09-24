@@ -300,25 +300,19 @@ if __name__ == "__main__":
 
 
             if t2_psnr > best_status['T2_PSNR']:
-                if args.modality == "both":
-                    best_status = {'T1_NMSE': t1_mse, 'T2_PSNR': t1_psnr, 'T2_SSIM': t1_ssim,
-                                'T2_NMSE': t2_mse, 'T2_PSNR': t2_psnr, 'T2_SSIM': t2_ssim}
-                elif args.modality == "t2":
-                    best_status = {'T2_NMSE': t2_mse, 'T2_PSNR': t2_psnr, 'T2_SSIM': t2_ssim}
+                best_status = {'T2_NMSE': t2_mse, 'T2_PSNR': t2_psnr, 'T2_SSIM': t2_ssim}
 
                 best_checkpoint_path = os.path.join(snapshot_path, 'best_checkpoint.pth')
 
                 torch.save({'network': network.state_dict()}, best_checkpoint_path)
                 print('New Best Network:')
-            if args.modality == "both":
-                logging.info(f"[T1 MRI:] average MSE: {t1_mse} average PSNR: {t1_psnr} average SSIM: {t1_ssim}")
+
             logging.info(f"[T2 MRI:] average MSE: {t2_mse} average PSNR: {t2_psnr} average SSIM: {t2_ssim}")
 
             if args.kspace_refine == "True":
                 logging.info(f"[T1 MRI (krecon_input):] average MSE: {t1_krecon_mse} average PSNR: {t1_krecon_psnr} average SSIM: {t1_krecon_ssim}")
                 logging.info(f"[T2 MRI (krecon_input):] average MSE: {t2_krecon_mse} average PSNR: {t2_krecon_psnr} average SSIM: {t2_krecon_ssim}")
 
-            
             if iter_num > max_iterations:
                 break
         print(best_status)

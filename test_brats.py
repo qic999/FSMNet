@@ -32,22 +32,11 @@ parser.add_argument('--exp', type=str, default='msl_model', help='model_name')
 parser.add_argument('--seed', type=int, default=1337, help='random seed')
 parser.add_argument('--base_lr', type=float, default=0.0002, help='maximum epoch numaber to train')
 
-# parser.add_argument('--input_dim', type=int, default=1, help='number of channels of the input image')
-# parser.add_argument('--output_dim', type=int, default=1, help='number of channels of the reconstructed image')
+
 parser.add_argument('--model_name', type=str, default='unet_single', help='model_name')
-parser.add_argument('--use_multi_modal', type=str, default='False', help='whether use multi-modal data for MRI reconstruction')
-parser.add_argument('--modality', type=str, default='t2', help='MRI modality')
-parser.add_argument('--input_modality', type=str, default='t2', help='input MRI modality')
-
 parser.add_argument('--relation_consistency', type=str, default='False', help='regularize the consistency of feature relation')
-
 parser.add_argument('--norm', type=str, default='False', help='Norm Layer between UNet and Transformer')
 parser.add_argument('--input_normalize', type=str, default='mean_std', help='choose from [min_max, mean_std, divide]')
-parser.add_argument('--kspace_refine', type=str, default='False', \
-                    help='use the original under-sampled input or the kspace-interpolated input')
-
-parser.add_argument('--kspace_round', type=str, default='round4', help='use which round of kspace_recon as model input')
-
 
 # args = parser.parse_args()
 from option import args
@@ -80,8 +69,7 @@ if __name__ == "__main__":
     if len(args.gpu.split(',')) > 1:
         network = nn.DataParallel(network)
 
-    db_test = MyDataset(kspace_refine=args.kspace_refine, kspace_round = args.kspace_round, 
-                        split='test', MRIDOWN=args.MRIDOWN, SNR=args.low_field_SNR, 
+    db_test = MyDataset(split='test', MRIDOWN=args.MRIDOWN, SNR=args.low_field_SNR, 
                         transform=transforms.Compose([ToTensor()]),
                         base_dir=test_data_path, input_normalize = args.input_normalize)
     testloader = DataLoader(db_test, batch_size=1, shuffle=False, num_workers=2, pin_memory=True)
@@ -121,63 +109,27 @@ if __name__ == "__main__":
 
 
             t1_out, t2_out = None, None
-
-            if args.use_multi_modal == 'True':
-                elif args.modality == "t1":
-                    t1_out = network(t1_in, t2_in)
-                elif args.modality == "t2":
-                    t2_out = network(t2_in, t1_in)
-
-                if args.input_normalize == "mean_std":
-                    ### 按照 x*std + mean把图像变回原来的特征范围
-                    t1_mean = sample_stats['t1_mean'].data.cpu().numpy()[0]
-                    t1_std = sample_stats['t1_std'].data.cpu().numpy()[0]
-                    t2_mean = sample_stats['t2_mean'].data.cpu().numpy()[0]
-                    t2_std = sample_stats['t2_std'].data.cpu().numpy()[0]
-
-                    t1_img = (normalize_output(np.clip(t1.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1)) * 255).astype(np.uint8)
-                    t2_img = (normalize_output(np.clip(t2.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1)) * 255).astype(np.uint8)
-                    t1_out_img = (normalize_output(np.clip(t1_out.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1)) * 255).astype(np.uint8)
-                    t2_out_img = (normalize_output(np.clip(t2_out.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1)) * 255).astype(np.uint8)
-
-                    print("t1_img range:", t1_img.max(), t1_img.min())
-                    print("t1_out_img range:", t1_out_img.max(), t1_out_img.min())
-                    print("t2_img range:", t2_img.max(), t2_img.min())
-                    print("t2_out_img range:", t2_out_img.max(), t2_out_img.min())
-           
                 
-                
-            elif args.use_multi_modal == 'False':
-                if args.modality == "t1":
-                    t1_out = network(t1_in)
-                    t1_out[t1_out < 0.0] = 0.0
-                    t1_out_img = (t1_out.data.cpu().numpy()[0, 0] * 255).astype(np.uint8)
-                    io.imsave(save_path + str(cnt) + '_t1_out.png', bright(t1_out_img,0,0.8))
 
+            t2_out = network(t2_in, t1_in)['img_out']
+            t2_out_2 = network(t2_in, t1_in)['img_out']
 
-                elif args.modality == "t2":
-                    if args.input_modality == "t1":
-                        t2_out = network(t1_in)
-                    elif args.input_modality == "t2":
-                        t2_out = network(t2_in, t1_in)['img_out']
-                        t2_out_2 = network(t2_in, t1_in)['img_out']
+            t1_mean = sample_stats['t1_mean'].data.cpu().numpy()[0]
+            t1_std = sample_stats['t1_std'].data.cpu().numpy()[0]
+            t2_mean = sample_stats['t2_mean'].data.cpu().numpy()[0]
+            t2_std = sample_stats['t2_std'].data.cpu().numpy()[0]
 
-                    t1_mean = sample_stats['t1_mean'].data.cpu().numpy()[0]
-                    t1_std = sample_stats['t1_std'].data.cpu().numpy()[0]
-                    t2_mean = sample_stats['t2_mean'].data.cpu().numpy()[0]
-                    t2_std = sample_stats['t2_std'].data.cpu().numpy()[0]
+            if t1_out is not None:
+                t1_img = (np.clip(t1.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1) * 255).astype(np.uint8)
+                t1_out_img = (np.clip(t1_out.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1) * 255).astype(np.uint8)
+                t1_krecon_img = (np.clip(t1_krecon.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1) * 255).astype(np.uint8)
 
-                    if t1_out is not None:
-                        t1_img = (np.clip(t1.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1) * 255).astype(np.uint8)
-                        t1_out_img = (np.clip(t1_out.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1) * 255).astype(np.uint8)
-                        t1_krecon_img = (np.clip(t1_krecon.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1) * 255).astype(np.uint8)
-
-                    t1_img = (np.clip(t1.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1) * 255).astype(np.uint8)
-                    t2_in_img = (np.clip(t2_in.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
-                    t2_img = (np.clip(t2.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
-                    t2_out_img = (np.clip(t2_out.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
-                    t2_krecon_img = (np.clip(t2_krecon.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
-                    t2_out_2_img = (np.clip(t2_out_2.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
+            t1_img = (np.clip(t1.data.cpu().numpy()[0, 0] * t1_std + t1_mean, 0, 1) * 255).astype(np.uint8)
+            t2_in_img = (np.clip(t2_in.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
+            t2_img = (np.clip(t2.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
+            t2_out_img = (np.clip(t2_out.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
+            t2_krecon_img = (np.clip(t2_krecon.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
+            t2_out_2_img = (np.clip(t2_out_2.data.cpu().numpy()[0, 0] * t2_std + t2_mean, 0, 1) * 255).astype(np.uint8)
 
             io.imsave(save_path + str(cnt) + '_t1.png', bright(t1_img,0,0.8))
             io.imsave(save_path + str(cnt) + '_t2.png', bright(t2_img,0,0.8))

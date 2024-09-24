@@ -55,12 +55,10 @@ def normalize_instance(data, eps=0.0):
 
 class Hybrid(Dataset):
 
-    def __init__(self, kspace_refine, kspace_round, base_dir=None, split='train', MRIDOWN='4X', \
+    def __init__(self, base_dir=None, split='train', MRIDOWN='4X', \
                     SNR=15, transform=None, input_normalize=None):
 
         super().__init__()
-        self.kspace_refine = kspace_refine
-        self.kspace_round = kspace_round
         self._base_dir = base_dir
         self._MRIDOWN = MRIDOWN
         self.im_ids = []
@@ -76,9 +74,7 @@ class Hybrid(Dataset):
 
         elif split=='test':
             self.test_file = self.splits_path + 'test_data.csv'
-            # self.test_file = self.splits_path + 'train_data.csv'
             test_images = pd.read_csv(self.test_file).iloc[:, -1].values.tolist()
-            # test_images = os.listdir(self._base_dir)
             self.t1_images = [image for image in test_images if image.split('_')[-1]=='t1.png']
 
         
@@ -98,30 +94,16 @@ class Hybrid(Dataset):
                     t2_krecon_path = image_path
 
             # if SNR == 0:
-            #     # t1_under_path = image_path.replace('t1', 't1_' + self._MRIDOWN + '_undermri')
-            #     t1_under_path = image_path
-            #     t2_under_path = image_path.replace('t1', 't2_' + self._MRIDOWN + '_undermri')
+                # t1_under_path = image_path.replace('t1', 't1_' + self._MRIDOWN + '_undermri')
+                t1_under_path = image_path
+                t2_under_path = image_path.replace('t1', 't2_' + self._MRIDOWN + '_undermri')
                 
             else:
-                # t1_under_path = image_path.replace('t1', 't1_' + str(SNR) + 'dB')
-                # t2_under_path = image_path.replace('t1', 't2_' + self._MRIDOWN + '_' + str(SNR) + 'dB_undermri')
+                t1_under_path = image_path.replace('t1', 't1_' + str(SNR) + 'dB')
+                t2_under_path = image_path.replace('t1', 't2_' + self._MRIDOWN + '_' + str(SNR) + 'dB')
 
-                if self.kspace_refine == "False":
-                    ### 没有kspace recon的结果, 所以用原始的输入图像来代替
-                    t1_under_path = image_path.replace('t1', 't1_' + str(SNR) + 'dB')
-                    t2_under_path = image_path.replace('t1', 't2_' + self._MRIDOWN + '_' + str(SNR) + 'dB')
-
-                    t1_krecon_path = image_path.replace('t1', 't1_' + str(SNR) + 'dB')
-                    t2_krecon_path = image_path.replace('t1', 't2_' + self._MRIDOWN + '_' + str(SNR) + 'dB')
-
-                elif self.kspace_refine == "True":
-                    t1_under_path = image_path.replace('t1', 't1_' + str(SNR) + 'dB')
-                    t2_under_path = image_path.replace('t1', 't2_' + self._MRIDOWN + '_' + str(SNR) + 'dB')
-                    
-                    t1_krecon_path = image_path.replace(
-                        't1', 't1_' + str(SNR) + 'dB_krecon_' + self.kspace_round + '_w_DC')
-                    t2_krecon_path = image_path.replace(
-                        't1', 't2_' + self._MRIDOWN + '_' + str(SNR) + 'dB_krecon_' + self.kspace_round + '_w_DC')
+                t1_krecon_path = image_path.replace('t1', 't1_' + str(SNR) + 'dB')
+                t2_krecon_path = image_path.replace('t1', 't2_' + self._MRIDOWN + '_' + str(SNR) + 'dB')
 
 
             self.t2_images.append(t2_path)
@@ -130,11 +112,6 @@ class Hybrid(Dataset):
 
             self.t1_krecon_images.append(t1_krecon_path)
             self.t2_krecon_images.append(t2_krecon_path)
-
-        # print("t1 images:", self.t1_images)
-        # print("t2 images:", self.t2_images)
-        # print("t1_undermri_images:", self.t1_undermri_images)
-        # print("t2_undermri_images:", self.t2_undermri_images)
 
         self.transform = transform
         self.input_normalize = input_normalize
@@ -151,19 +128,6 @@ class Hybrid(Dataset):
 
 
     def __getitem__(self, index):
-        ### T1, T2两个模态的输入都是low-quality images.
-        # sample = {'image_in': np.array(Image.open(self._base_dir + self.t1_undermri_images[index]))/255.0, 
-        #           'image': np.array(Image.open(self._base_dir + self.t1_images[index]))/255.0, 
-        #           'target_in': np.array(Image.open(self._base_dir + self.t2_undermri_images[index]))/255.0, 
-        #           'target': np.array(Image.open(self._base_dir + self.t2_images[index]))/255.0}
-
-
-        # ### 2023/05/23, Xiaohan, 把T1模态的输入改成high-quality图像（和ground truth一致，看能否为T2提供更好的guidance）。
-        # sample = {'image_in': np.array(Image.open(self._base_dir + self.t1_images[index]))/255.0, 
-        #           'image': np.array(Image.open(self._base_dir + self.t1_images[index]))/255.0, 
-        #           'target_in': np.array(Image.open(self._base_dir + self.t2_undermri_images[index]))/255.0, 
-        #           'target': np.array(Image.open(self._base_dir + self.t2_images[index]))/255.0}
-
 
         t1_in = np.array(Image.open(self._base_dir + self.t1_undermri_images[index]))/255.0
         t1 = np.array(Image.open(self._base_dir + self.t1_images[index]))/255.0
@@ -172,11 +136,8 @@ class Hybrid(Dataset):
         t2_in = np.array(Image.open(self._base_dir + self.t2_undermri_images[index]))/255.0
         t2 = np.array(Image.open(self._base_dir + self.t2_images[index]))/255.0
         t2_krecon = np.array(Image.open(self._base_dir + self.t2_krecon_images[index]))/255.0
-        # print("images:", t1_in.shape, t1.shape, t2_in.shape, t2.shape)
-        # print("t1 before standardization:", t1.max(), t1.min(), t1.mean())
 
         if self.input_normalize == "mean_std":
-            ### 对input image和target image都做(x-mean)/std的归一化操作
             t1_in, t1_mean, t1_std = normalize_instance(t1_in, eps=1e-11)
             t1 = normalize(t1, t1_mean, t1_std, eps=1e-11)
             t2_in, t2_mean, t2_std = normalize_instance(t2_in, eps=1e-11)
@@ -193,8 +154,7 @@ class Hybrid(Dataset):
 
             t1_krecon = np.clip(t1_krecon, -6, 6)
             t2_krecon = np.clip(t2_krecon, -6, 6)
-            # print("t1_in after standardization:", t1_in.max(), t1_in.min(), t1_in.mean())
-            
+
             sample_stats = {"t1_mean": t1_mean, "t1_std": t1_std, "t2_mean": t2_mean, "t2_std": t2_std}
 
         elif self.input_normalize == "min_max":

@@ -15,21 +15,12 @@ parser.add_argument('--seed', type=int, default=1337, help='random seed')
 parser.add_argument('--resume', type=str, default=None, help='resume')
 
 parser.add_argument('--model_name', type=str, default='unet_single', help='model_name')
-parser.add_argument('--use_multi_modal', type=str, default='False', help='whether use multi-modal data for MRI reconstruction')
-parser.add_argument('--modality', type=str, default='t2', help='MRI modality')
-parser.add_argument('--input_modality', type=str, default='t2', help='input MRI modality')
 parser.add_argument('--relation_consistency', type=str, default='False', help='regularize the consistency of feature relation')
 parser.add_argument('--clip_grad', type=str, default='True', help='clip gradient of the network parameters')
 
 
 parser.add_argument('--norm', type=str, default='False', help='Norm Layer between UNet and Transformer')
 parser.add_argument('--input_normalize', type=str, default='mean_std', help='choose from [min_max, mean_std, divide]')
-
-parser.add_argument('--kspace_refine', type=str, default='False', \
-                    help='use the original under-sampled input or the kspace-interpolated input')
-
-parser.add_argument('--kspace_round', type=str, default='round4', help='use which round of kspace_recon as model input')
-
 
 parser.add_argument("--dist_url", default="63654")
 
