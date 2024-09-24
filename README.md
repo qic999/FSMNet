@@ -38,7 +38,7 @@ unzip singlecoil_train_selected.zip
 ##### BraTS dataset, AF=4
 ```
 python train_brats.py --root_path /data/qic99/MRI_recon image_100patients_4X/ \
-    --gpu 0 --model_name unet_single --batch_size 4 --base_lr 0.0001 --MRIDOWN 4X --low_field_SNR 0 \
+    --gpu 0 --batch_size 4 --base_lr 0.0001 --MRIDOWN 4X --low_field_SNR 0 \
     --input_normalize mean_std \
     --exp FSMNet_BraTS_4x
 ```
@@ -46,7 +46,7 @@ python train_brats.py --root_path /data/qic99/MRI_recon image_100patients_4X/ \
 ##### BraTS dataset, AF=8
 ```
 python train_brats.py --root_path /data/qic99/MRI_recon/image_100patients_8X/ \
-    --gpu 1 --model_name unet_single --batch_size 4 --base_lr 0.0001 --MRIDOWN 8X --low_field_SNR 0 \
+    --gpu 1 --batch_size 4 --base_lr 0.0001 --MRIDOWN 8X --low_field_SNR 0 \
     --input_normalize mean_std \
     --exp FSMNet_BraTS_8x
 ```
@@ -54,14 +54,14 @@ python train_brats.py --root_path /data/qic99/MRI_recon/image_100patients_8X/ \
 ##### fastMRI dataset, AF=4
 ```
 python train_fastmri.py --root_path /data/qic99/MRI_recon/fastMRI/ \
-    --gpu 0 --model_name unet_single --batch_size 4 --base_lr 0.0001 --CENTER_FRACTIONS 0.08 --ACCELERATIONS 4 \
+    --gpu 0 --batch_size 4 --base_lr 0.0001 --CENTER_FRACTIONS 0.08 --ACCELERATIONS 4 \
     --exp FSMNet_fastmri_4x
 ```
 
 ##### fastMRI dataset, AF=8
 ```
 python train_fastmri.py --root_path /data/qic99/MRI_recon/fastMRI/ \
-    --gpu 1 --model_name unet_single --batch_size 4 --base_lr 0.0001 --CENTER_FRACTIONS 0.04 --ACCELERATIONS 8 \
+    --gpu 1 --batch_size 4 --base_lr 0.0001 --CENTER_FRACTIONS 0.04 --ACCELERATIONS 8 \
     --exp FSMNet_fastmri_8x
 ```
 
@@ -69,7 +69,7 @@ python train_fastmri.py --root_path /data/qic99/MRI_recon/fastMRI/ \
 ##### BraTS dataset, AF=4
 ```
 python test_brats.py --root_path /data/qic99/MRI_recon/image_100patients_4X/ \
-    --gpu 3 --model_name unet_single --base_lr 0.0001 --MRIDOWN 4X --low_field_SNR 0 \
+    --gpu 3 --base_lr 0.0001 --MRIDOWN 4X --low_field_SNR 0 \
     --input_normalize mean_std \
     --exp FSMNet_BraTS_4x --phase test
 ```
@@ -77,7 +77,7 @@ python test_brats.py --root_path /data/qic99/MRI_recon/image_100patients_4X/ \
 ##### BraTS dataset, AF=8
 ```
 python test_brats.py --root_path /data/qic99/MRI_recon/image_100patients_8X/ \
-    --gpu 4 --model_name unet_single --base_lr 0.0001 --MRIDOWN 8X --low_field_SNR 0 \
+    --gpu 4 --base_lr 0.0001 --MRIDOWN 8X --low_field_SNR 0 \
     --input_normalize mean_std \
     --exp FSMNet_BraTS_8x --phase test
 ```
@@ -85,13 +85,13 @@ python test_brats.py --root_path /data/qic99/MRI_recon/image_100patients_8X/ \
 ##### fastMRI dataset, AF=4
 ```
 python test_fastmri.py --root_path /data/qic99/MRI_recon/fastMRI/ \
-    --gpu 5 --model_name unet_single --batch_size 4 --base_lr 0.0001 --CENTER_FRACTIONS 0.08 --ACCELERATIONS 4 \
+    --gpu 5 --batch_size 4 --base_lr 0.0001 --CENTER_FRACTIONS 0.08 --ACCELERATIONS 4 \
     --exp FSMNet_fastmri_4x --phase test
 ```
 
 ##### fastMRI dataset, AF=8
 ```
 python test_fastmri.py --root_path /data/qic99/MRI_recon/fastMRI/ \
-    --gpu 6 --model_name unet_single --batch_size 4 --base_lr 0.0001 --CENTER_FRACTIONS 0.04 --ACCELERATIONS 8 \
+    --gpu 6 --batch_size 4 --base_lr 0.0001 --CENTER_FRACTIONS 0.04 --ACCELERATIONS 8 \
     --exp FSMNet_fastmri_8x --phase test
 ```

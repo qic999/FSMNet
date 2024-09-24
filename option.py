@@ -1,5 +1,4 @@
 import argparse
-# import os
 
 parser = argparse.ArgumentParser(description='MRI recon')
 parser.add_argument('--root_path', type=str, default='/home/xiaohan/datasets/BRATS_dataset/BRATS_2020_images/selected_images/')
@@ -13,8 +12,6 @@ parser.add_argument('--batch_size', type=int, default=8, help='batch_size per gp
 parser.add_argument('--base_lr', type=float, default=0.0002, help='maximum epoch numaber to train')
 parser.add_argument('--seed', type=int, default=1337, help='random seed')
 parser.add_argument('--resume', type=str, default=None, help='resume')
-
-parser.add_argument('--model_name', type=str, default='unet_single', help='model_name')
 parser.add_argument('--relation_consistency', type=str, default='False', help='regularize the consistency of feature relation')
 parser.add_argument('--clip_grad', type=str, default='True', help='clip gradient of the network parameters')
 
@@ -63,13 +60,3 @@ parser.add_argument('--ACCELERATIONS', nargs='+', type=int)
 
 
 args = parser.parse_args()
-# os.environ['CUDA_VISIBLE_DEVICES'] = args.cuda_name
-# args.scale = list(map(lambda x: int(x), args.scale.split('+')))
-
-
-# for arg in vars(args):
-#     if vars(args)[arg] == 'True':
-#         vars(args)[arg] = True
-#     elif vars(args)[arg] == 'False':
-#         vars(args)[arg] = False
-
