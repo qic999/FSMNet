@@ -1,8 +1,3 @@
-"""
-Compare with state-of-the-art methods.
-Load models from the folder networks/compare_models.
-"""
-
 import os
 # os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
