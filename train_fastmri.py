@@ -1,6 +1,4 @@
 import os
-# os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
-
 import sys
 from tqdm import tqdm
 from tensorboardX import SummaryWriter
@@ -20,13 +18,9 @@ from networks.compare_models import build_model_from_name
 from dataloaders.BRATS_dataloader_new import Hybrid as MyDataset
 from dataloaders.BRATS_dataloader_new import RandomPadCrop, ToTensor, AddNoise
 from networks.mynet import TwoBranch
-# from dataloaders.BRATS_dataloader import Hybrid as MyDataset
-# from dataloaders.BRATS_dataloader import RandomPadCrop, ToTensor
 from option import args
 from skimage.metrics import mean_squared_error, peak_signal_noise_ratio, structural_similarity
 from dataloaders.fastmri import build_dataset
-
-# torch.backends.cudnn.benchmark = True
 
 
 train_data_path = args.root_path
@@ -56,13 +50,8 @@ def cc(img1, img2):
 
 
 def gradient_calllback(network):
-    """
-    记录Unet_restormer网络中各层特征参数的gradient.
-    """
     for name, param in network.named_parameters():
         if param.grad is not None:
-            # print("Gradient of {}: {}".format(name, param.grad.abs().mean()))
-
             if param.grad.abs().mean() == 0:
                 print("Gradient of {} is 0".format(name))
 

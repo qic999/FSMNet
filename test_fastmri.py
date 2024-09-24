@@ -115,9 +115,6 @@ def evaluate(model, data_loader, device, save_path):
 
     print("==> Evaluate Metric")
     print("Results ----------")
-    # print("NMSE: {:.4}".format(nmse_meter.avg))
-    # print("PSNR: {:.4}".format(psnr_meter.avg))
-    # print("SSIM: {:.4}".format(ssim_meter.avg))
     print("NMSE: {:.4}".format(np.array(nmse_meter.score).mean()))
     print("PSNR: {:.4}".format(np.array(psnr_meter.score).mean()))
     print("SSIM: {:.4}".format(np.array(ssim_meter.score).mean()))
@@ -139,18 +136,6 @@ if __name__ == "__main__":
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     logging.info(str(args))
 
-    # if args.baseline == 'swinIR':
-    #     network = build_model().cuda()
-    # elif args.baseline == 'MINet':
-    #     network = MINet().cuda()
-    # elif args.baseline == 'MCCA':
-    #     network = MCCA().cuda()
-    # elif args.baseline == 'DCAMSR':
-    #     network = DCAMSR().cuda()
-    # elif args.baseline == 'MTrans':
-    #     cfg = RMC
-    #     network = RMC_Model(cfg).cuda()
-    # network = build_model_from_name(args).cuda()
     network = TwoBranch(args).cuda()
     device = torch.device('cuda')
     network.to(device)
@@ -165,7 +150,6 @@ if __name__ == "__main__":
     if args.phase == 'test':
 
         save_mode_path = os.path.join(snapshot_path, 'best_checkpoint.pth')
-        # save_mode_path = os.path.join(snapshot_path, 'best.pth')
         print('load weights from ' + save_mode_path)
         checkpoint = torch.load(save_mode_path)
         

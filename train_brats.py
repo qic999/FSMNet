@@ -49,9 +49,6 @@ def cc(img1, img2):
 
 
 def gradient_calllback(network):
-    """
-    记录Unet_restormer网络中各层特征参数的gradient.
-    """
     for name, param in network.named_parameters():
         if param.grad is not None:
             # print("Gradient of {}: {}".format(name, param.grad.abs().mean()))
